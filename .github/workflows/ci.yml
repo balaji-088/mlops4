@@ -1,0 +1,34 @@
+name: Portfolio HTML CI
+
+on:
+  push:
+    paths:
+      - "**/*.html"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "**/*.html"
+      - ".github/workflows/ci.yml"
+
+jobs:
+  validate-html:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate portfolio HTML
+        shell: bash
+        run: |
+          shopt -s globstar nullglob
+          html_files=(**/*.html)
+          if ((${#html_files[@]} == 0)); then
+            echo "::error::No HTML files found. Add the portfolio HTML before running CI."
+            exit 1
+          fi
+          npx --yes html-validate@latest "${html_files[@]}"
